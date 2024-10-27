@@ -1,6 +1,4 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
 function App() {
@@ -10,11 +8,11 @@ function App() {
   // State to store the list of all friends
   let [allfriend, setAllFriend] = useState([]);
 
-  // State to manage assignment status (not used in this example)
+  // State to manage assignment status
   let [isAssign, setIsAssign] = useState(false);
 
   // Array of popular gifts
-  let gifts = ["Gift Card", "Book", "Chocolate", "Perfume", "Gadget","Gift Card 2", "Book 2", "Chocolate 2", "Perfume 2", "Gadget 2"];
+  let gifts = ["Gift Card", "Book", "Chocolate", "Perfume", "Gadget", "Gift Card 2", "Book 2", "Chocolate 2", "Perfume 2", "Gadget 2"];
 
   // Function to handle changes in the input field
   let handleNewFriend = (event) => {
@@ -28,55 +26,56 @@ function App() {
     // Check if the input is not empty before adding to the list
     if (newFriend.trim() !== "") {
       setAllFriend((arr) => {
-        return [...arr, { name: newFriend, gift: "No gift assigned" }]; // Append the new friend's name and a random gift to the allfriend array
+        return [...arr, { name: newFriend, gift: "No gift assigned" }]; // Append the new friend's name and a default gift to the allfriend array
       });
       setNewFriend(""); // Clear the input field after submission
-      setIsAssign(false);
-    } else {
-      alert("Friend name cannot be blank"); // Alert the user if the input is blank
+      setIsAssign(false); // Reset the assignment status
     }
   };
 
-  // Function to assign gifts to friends
-  let assignGift = (event) => {
-    if (!isAssign) {
-      setAllFriend((arr) => {
+  // Function to update gifts based on the action
+  let updateGifts = (action) => {
+    setAllFriend((arr) => {
+      let allAssigned = arr.every(el => el.gift !== "No gift assigned"); // Check if all friends have a gift assigned
+      
+      if (action === "assign" && !allAssigned) {
         let newArr = arr.map((el) => {
-          if (el.gift == "No gift assigned") {
-            el.gift = gifts[Math.floor(Math.random() * gifts.length)];
+          if (el.gift === "No gift assigned") {         
+            el.gift = gifts[Math.floor(Math.random() * gifts.length)]; // Assign a random gift if not already assigned
           }
-          return { ...el };
+          return el;
+        });
+        setIsAssign(true); // Update the isAssign state to true
+        return [...newArr];
+      } else if (action === "shuffle") {
+        let newArr = arr.map((el) => {
+          el.gift = gifts[Math.floor(Math.random() * gifts.length)]; // Shuffle the gift
+          return el;
         });
         return [...newArr];
-      });
-      setIsAssign(true); // Update the isAssign state to true
-    }
-    else{
-      alert("Gift already assigned !");     // alert if gift is already assigned to all
-    }
-  };
-
-  let suffleGifts = (event) => {
-    setAllFriend((arr) => {
-      let newArr = arr.map((el) => {
-          el.gift = gifts[Math.floor(Math.random() * gifts.length)];
-        return { ...el };
-      });
-      return [...newArr];
+      } else if (action === "reset" && allAssigned) {
+        let newArr = arr.map((el) => {
+          el.gift = "No gift assigned"; // Reset the gift to default
+          return el;
+        });
+        setIsAssign(false); // Reset the isAssign state
+        return [...newArr];
+      }
+      return arr; // Return the original array without changes if conditions are not met
     });
   };
-  let reset = (event) => {
+
+  // Function to remove a friend from the list
+  let removeFriend = (index) => {
     setAllFriend((arr) => {
-      let newArr = arr.map((el) => {
-          el.gift =  "No gift assigned";
-        return { ...el };
-      });
+      let newArr = arr.filter((_, i) => i !== index); // Remove the friend at the specified index
       return [...newArr];
     });
   };
 
   return (
     <>
+      <h1>Add friends and assign gifts!</h1>
       <form action="" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -92,17 +91,16 @@ function App() {
             return (
               <div key={index} className="friend-item">
                 <li>
-                  {el.name} - {el.gift}{" "}
-                  {/* Display the friend's name and assigned gift */}
+                  {el.name} - {el.gift} {/* Display the friend's name and assigned gift */}
                 </li>
-                <button>Remove</button>
+                <button onClick={() => removeFriend(index)}>Remove</button>
               </div>
             );
           })}
         </ul>
-        <button onClick={assignGift}>Assign Gifts</button>
-        <button onClick={suffleGifts}>Suffle Gifts</button>
-        <button onClick={reset}>Reset</button>
+        <button onClick={() => updateGifts("assign")}>Assign Gifts</button>
+        <button onClick={() => updateGifts("shuffle")}>Shuffle Gifts</button>
+        <button onClick={() => updateGifts("reset")}>Reset</button>
       </div>
     </>
   );

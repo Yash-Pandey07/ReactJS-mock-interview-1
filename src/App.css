@@ -5,7 +5,16 @@
     padding: 2rem;
     text-align: center;
   }
+  body {
+    background-image: url('/public/background.jpg'); /* Update with the correct path to your image */
+    background-size: auto; /* Keep the original size of the image */
+    background-repeat: repeat; /* Tile the image to cover the entire background */
+    background-position: top left; /* Start tiling from the top left corner */
+    margin: 0;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: rgba(255, 255, 255, 0.87);
   
+  }
   .logo {
     height: 6em;
     padding: 1.5em;
